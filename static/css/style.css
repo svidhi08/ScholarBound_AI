@@ -1,0 +1,121 @@
+/* Layout & Background Blobs */
+body {
+    background-color: #fcfdff;
+    overflow-x: hidden;
+    color: #1e293b;
+    margin: 0;
+}
+
+.bg-blob-1 {
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 60%;
+    height: 60%;
+    border-radius: 9999px;
+    background-color: rgba(99, 102, 241, 0.12); 
+    filter: blur(120px);
+    z-index: -10;
+}
+
+.bg-blob-2 {
+    position: fixed;
+    bottom: -5%;
+    right: -5%;
+    width: 50%;
+    height: 50%;
+    border-radius: 9999px;
+    background-color: rgba(168, 85, 247, 0.12);
+    filter: blur(120px);
+    z-index: -10;
+}
+
+/* Glassmorphism Effect */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+}
+
+/* Upgraded Button Animation */
+.btn-action {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white !important;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-action:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 12px 25px rgba(79, 70, 229, 0.4);
+    filter: brightness(1.1);
+}
+
+/* Chat Bubbles */
+.chat-bubble {
+    max-width: 85%;
+    padding: 1rem 1.25rem;
+    border-radius: 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.user-bubble {
+    background: #6366f1;
+    color: white;
+    border-bottom-right-radius: 4px;
+    margin-left: auto;
+}
+
+.ai-bubble {
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    border-bottom-left-radius: 4px;
+}
+
+/* Markdown Support inside AI Bubbles */
+.ai-bubble ul { list-style-type: disc; margin-left: 1.5rem; }
+.ai-bubble h3 { font-weight: bold; margin-top: 0.5rem; }
+
+#chat-window::-webkit-scrollbar { width: 5px; }
+#chat-window::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 10px;
+}
+
+/* Grading Specific UI Elements */
+.grading-section-card {
+    background: white;
+    border-radius: 1.5rem;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.report-paper {
+    background: white;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    border-radius: 1.5rem;
+}
+
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #FFF;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

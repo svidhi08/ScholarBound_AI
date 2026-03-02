@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Set Grading Rubric</title>
+</head>
+<body>
+    <div class="relative isolate overflow-hidden bg-white">
+        <svg class="absolute inset-0 -z-10 h-full w-full stroke-gray-200 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]" aria-hidden="true">
+            <defs>
+                <pattern id="grid-pattern" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
+                    <path d="M.5 200V.5H200" fill="none" />
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" stroke-width="0" fill="url(#grid-pattern)" />
+        </svg>
+
+        <div class="p-6">
+            <a href="/" class="my-2 inline-block bg-gradient-to-bl from-green-300 via-blue-500 to-cyan-600 px-8 rounded-2xl py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90">
+                Back
+            </a>
+        </div>
+
+        <div class="mx-auto sm:h-screen w-screen flex flex-col justify-center items-center px-6 pb-24">
+            <div class="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl">
+                <img src="https://res.cloudinary.com/dtsuvx8dz/image/upload/v1710486664/hdbyd4gkogrzdk3lb23j.png" class="h-16 w-16 mb-4" alt="Logo">
+                
+                <div class="mb-6">
+                    <span class="rounded-full bg-gradient-to-br from-green-300 via-blue-500 to-purple-600 px-3 py-1 text-sm font-semibold leading-6 text-white">
+                        Essay Grading Rubric
+                    </span>
+                </div>
+
+                <form action="/essay_grading" method="post">
+                    <div class="w-full">
+                        <div class="relative w-full min-w-[300px] sm:min-w-[500px]">
+                            <textarea rows="6" name="essay_rubric" required
+                                class="peer w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-cyan-700 outline outline-0 transition-all border-blue-500/30 focus:border-2 focus:border-blue-900/50 focus:border-t-transparent focus:outline-0"
+                                placeholder=" "></textarea>
+                            <label class="pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:content[' '] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:transition-all after:content[' '] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900">
+                                Paste Grading Rubric (Criteria, points, etc.)
+                            </label>
+                        </div>
+                        <button type="submit" class="mt-4 w-full bg-gradient-to-bl from-green-300 via-blue-500 to-cyan-600 px-8 rounded-2xl py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90">
+                            Continue to Grading
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

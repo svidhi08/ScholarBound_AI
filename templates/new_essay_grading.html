@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <title>Academic Analysis | Essay Grader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="antialiased">
+    <div class="bg-blob-1"></div>
+    <div class="bg-blob-2"></div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 md:px-8">
+        
+        <header class="flex justify-between items-center mb-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">AI</div>
+                <div>
+                    <h1 class="text-2xl font-black text-slate-800 tracking-tight">Smart <span class="text-indigo-600">Grader</span></h1>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Precision Evaluation Engine</p>
+                </div>
+            </div>
+            <a href="/" class="text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors">← Exit to Portal</a>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            
+            <div class="lg:col-span-5 space-y-6">
+                <section class="grading-section-card p-6">
+                    <h2 class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-[10px]">1</span>
+                        Evaluation Criteria
+                    </h2>
+                    <form action="/essay_grading" method="post" class="space-y-4">
+                        <textarea name="essay_rubric" rows="4" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none text-sm transition-all" placeholder="Paste your grading rubric here...">{{ rubric }}</textarea>
+                        <button type="submit" class="w-full bg-slate-800 text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-900 transition-all shadow-md">
+                            Save Parameters
+                        </button>
+                    </form>
+                </section>
+
+                <section class="grading-section-card p-6">
+                    <h2 class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-[10px]">2</span>
+                        Manuscript Submission
+                    </h2>
+                    <form action="/essay_grading" method="post" enctype="multipart/form-data" id="grade-form" class="space-y-5">
+                        <div class="group relative border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-indigo-300 transition-colors bg-slate-50/50">
+                            <input type="file" name="file" accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <svg class="mx-auto h-8 w-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                            <p class="text-xs font-bold text-slate-600">Upload PDF Document</p>
+                        </div>
+
+                        <div class="relative flex py-2 items-center">
+                            <div class="flex-grow border-t border-slate-100"></div>
+                            <span class="flex-shrink mx-4 text-[10px] font-bold text-slate-300 uppercase">OR</span>
+                            <div class="flex-grow border-t border-slate-100"></div>
+                        </div>
+
+                        <textarea name="essay_text" rows="8" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none text-sm transition-all" placeholder="Paste the full essay text here...">{{ input_text }}</textarea>
+                        
+                        <button type="submit" id="grade-btn" class="w-full flex items-center justify-center btn-action py-4 rounded-2xl shadow-xl shadow-indigo-100 active:scale-[0.98]">
+                            <span id="grade-loader" class="loader hidden mr-2"></span>
+                            <span id="grade-btn-text">Generate Formal Grade</span>
+                        </button>
+                    </form>
+                </section>
+            </div>
+
+            <div class="lg:col-span-7">
+                <div class="sticky top-8 report-paper min-h-[750px] flex flex-col border-none overflow-hidden bg-white">
+                    <div class="px-8 py-5 border-b border-slate-50 flex items-center justify-between">
+                        <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Evaluation Report</h2>
+                        {% if result %}
+                        <button onclick="window.print()" class="text-[10px] font-bold text-indigo-600 hover:underline">Export Report</button>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="p-10 flex-1 overflow-y-auto">
+                        {% if result %}
+                            <div class="prose prose-slate max-w-none prose-sm prose-headings:font-bold prose-indigo">
+                                {{ result | safe }}
+                            </div>
+                        {% else %}
+                            <div class="flex flex-col items-center justify-center h-full text-center opacity-40">
+                                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-800">Awaiting Submission</h3>
+                                <p class="text-sm text-slate-500 max-w-xs mt-2">Evaluation will appear here once processed.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/loading.js') }}"></script>
+    <script>
+        initLoading('grade-form', 'grade-btn', 'grade-loader', 'grade-btn-text', 'Analyzing Manuscript...');
+    </script>
+</body>
+</html>
