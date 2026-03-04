@@ -1,4 +1,3 @@
-
 import os
 import markdown
 from dotenv import load_dotenv
@@ -11,7 +10,8 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-
+import torch
+torch.set_num_threads(1)
 load_dotenv()
 app = Flask(__name__)
 
@@ -40,7 +40,9 @@ def chunk_text(text):
 
 def build_faiss_index(chunks):
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        model_kwargs={"device": "cpu"},
+        encode_kwargs={"normalize_embeddings": True}
     )
     return FAISS.from_texts(chunks, embeddings)
 
@@ -155,7 +157,6 @@ def home():
 @app.route("/upload_pdf")
 def upload_pdf():
     return render_template("new_pdf_chat.html")
-
 @app.route("/process", methods=["POST"])
 def process_documents():
     global vectorstore, rag_chain, chat_history_data
@@ -165,8 +166,16 @@ def process_documents():
     if not pdf_files or pdf_files[0].filename == "":
         return redirect(url_for("home"))
 
+    # 1️⃣ Extract text
     raw_text = extract_text_from_pdfs(pdf_files)
+
+    # 2️⃣ Chunk text
     chunks = chunk_text(raw_text)
+
+    # 3️⃣ FREE MEMORY (VERY IMPORTANT on Render free tier)
+    del raw_text
+
+    # 4️⃣ Build FAISS index
     vectorstore = build_faiss_index(chunks)
 
     retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
