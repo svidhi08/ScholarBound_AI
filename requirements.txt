@@ -7,6 +7,7 @@ langchain-community
 langchain-core
 langchain-text-splitters
 faiss-cpu
+numpy<2
 torch==2.2.2+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu
 sentence-transformers==2.6.1
