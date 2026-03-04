@@ -10,13 +10,12 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-# Using the updated package to fix the DeprecationWarning in your logs
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
 import torch
 
-# 🔥 IMPORTANT: Reduce CPU & Memory usage
+# 🔥 Reduce CPU usage
 torch.set_num_threads(1)
 
 load_dotenv()
@@ -30,10 +29,7 @@ rag_chain = None
 chat_history_data = []
 rubric_text = ""
 
-# -------------------------
-# 🔥 LOAD EMBEDDING MODEL ONLY ONCE (GLOBAL)
-# -------------------------
-# We load this at the top level so it stays in RAM and isn't reloaded.
+# 🔥 Load embeddings once to avoid memory bloat
 embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2",
     model_kwargs={"device": "cpu"},
@@ -62,9 +58,8 @@ def chunk_text(text):
 
 
 def build_faiss_index(chunks):
-    # FIXED: Use the GLOBAL 'embeddings' object.
-    # Do NOT call HuggingFaceEmbeddings() here again, or RAM will double and crash.
-    global embeddings 
+    # Use global embeddings to save memory
+    global embeddings
     return FAISS.from_texts(chunks, embeddings)
 
 
@@ -72,8 +67,8 @@ def build_faiss_index(chunks):
 # PROMPTS
 # -------------------------
 question_normalizer = ChatPromptTemplate.from_template("""
-Rephrase the following question to be a standalone question by using the Chat History for context.
-Do NOT add new meaning or external context outside of what is mentioned in the history.
+Rephrase the following question to be a standalone question using the Chat History.
+Do NOT add new meaning.
 
 Chat History:
 {chat_history}
@@ -88,18 +83,9 @@ answer_prompt = ChatPromptTemplate.from_template("""
 You are a document-grounded assistant.
 
 INSTRUCTIONS:
-1. Carefully read the provided context.
-2. Extract sentences or explanations relevant to the question.
-3. Answer ONLY using information found in the context.
-4. Do NOT use outside knowledge.
-5. Do NOT assume or guess.
-6. If the context contains details related to the topic but not a direct answer, provide the related details.
-7. ONLY if the context contains no relevant information at all, reply exactly:
-   "The document does not specify this information."
-8. STRUCTURE: Use Markdown formatting.
-   - Use ### for Section Headings.
-   - Use **bold** for key terms.
-   - Use bullet points for lists.
+1. Answer only using provided context.
+2. If context has no answer, reply: "The document does not specify this information."
+3. Format: Markdown with ### headings, bullet points, and **bold** where relevant.
 
 Context:
 {context}
@@ -110,6 +96,7 @@ Question:
 Answer:
 """)
 
+
 # -------------------------
 # LLM INITIALIZATION
 # -------------------------
@@ -119,6 +106,7 @@ llm = ChatOpenAI(
     base_url="https://openrouter.ai/api/v1",
     temperature=0
 )
+
 
 # -------------------------
 # RAG CHAIN
@@ -164,7 +152,6 @@ RUBRIC:
 ESSAY:
 {essay_content}
 """
-
     raw_grade = llm.invoke(prompt).content
     return markdown.markdown(raw_grade)
 
@@ -192,20 +179,14 @@ def process_documents():
     if not pdf_files or pdf_files[0].filename == "":
         return redirect(url_for("home"))
 
-    # 1️⃣ Extract
+    # Extract and chunk
     raw_text = extract_text_from_pdfs(pdf_files)
-
-    # 2️⃣ Chunk
     chunks = chunk_text(raw_text)
-
-    # 3️⃣ Free memory immediately
     del raw_text
     gc.collect()
 
-    # 4️⃣ Build FAISS
+    # Build FAISS index
     vectorstore = build_faiss_index(chunks)
-
-    # 5️⃣ Free chunks memory
     del chunks
     gc.collect()
 
@@ -224,10 +205,7 @@ def chat():
             return "Please upload a PDF first.", 400
 
         question = request.form["user_question"]
-
-        history_str = "\n".join(
-            [f"{m['role']}: {m['content']}" for m in chat_history_data]
-        )
+        history_str = "\n".join([f"{m['role']}: {m['content']}" for m in chat_history_data])
 
         response = rag_chain.invoke({
             "question": question,
@@ -235,7 +213,6 @@ def chat():
         })
 
         formatted_response = markdown.markdown(response)
-
         chat_history_data.append({"role": "User", "content": question})
         chat_history_data.append({"role": "Assistant", "content": formatted_response})
 
@@ -250,7 +227,6 @@ def essay_grading():
     input_text = ""
 
     if request.method == "POST":
-
         if "essay_rubric" in request.form and not request.form.get("essay_text"):
             rubric_text = request.form["essay_rubric"]
             result = "✅ Rubric updated!"
@@ -259,16 +235,13 @@ def essay_grading():
             if "file" in request.files and request.files["file"].filename != "":
                 reader = PdfReader(request.files["file"])
                 input_text = "".join(p.extract_text() or "" for p in reader.pages)
-
             elif request.form.get("essay_text"):
                 input_text = request.form["essay_text"]
 
             if not rubric_text:
                 result = "❌ Please set a rubric first."
-
             elif input_text:
                 result = grade_essay_logic(input_text)
-
             else:
                 result = "❌ No essay content found."
 
