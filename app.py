@@ -10,8 +10,8 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-import torch
-torch.set_num_threads(1)
+# import torch
+# torch.set_num_threads(1)
 load_dotenv()
 app = Flask(__name__)
 
