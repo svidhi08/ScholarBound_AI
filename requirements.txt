@@ -9,7 +9,7 @@ langchain-text-splitters
 langchain-huggingface
 faiss-cpu
 numpy<2.0.0
-torch --index-url https://download.pytorch.org/whl/cpu
-sentence-transformers
+torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
+sentence-transformers==2.6.1
 markdown
 gunicorn
