@@ -5,17 +5,19 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for
 from PyPDF2 import PdfReader
 
+# Updated LangChain imports for 2026 standards
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# Use the new langchain-huggingface package (Fixes Deprecation Warning)
+from langchain_huggingface import HuggingFaceEmbeddings 
 from langchain_community.vectorstores import FAISS
 
 import torch
 
-# 🔥 IMPORTANT: Reduce CPU & Memory usage
+# 🔥 CRITICAL: Reduce CPU & Memory usage for Render Free Tier
 torch.set_num_threads(1)
 
 load_dotenv()
@@ -30,8 +32,10 @@ chat_history_data = []
 rubric_text = ""
 
 # -------------------------
-# 🔥 LOAD EMBEDDING MODEL ONLY ONCE
+# 🔥 LOAD EMBEDDING MODEL ONCE (GLOBAL)
 # -------------------------
+# Loading this globally ensures it stays in memory and isn't re-downloaded 
+# or re-initialized every time a user uploads a PDF.
 embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2",
     model_kwargs={"device": "cpu"},
@@ -60,11 +64,8 @@ def chunk_text(text):
 
 
 def build_faiss_index(chunks):
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2",
-        model_kwargs={"device": "cpu"},
-        encode_kwargs={"normalize_embeddings": True}
-    )
+    # USE GLOBAL EMBEDDINGS (Fixes Memory Overflow / 502 Error)
+    global embeddings 
     return FAISS.from_texts(chunks, embeddings)
 
 
@@ -198,7 +199,7 @@ def process_documents():
     # 2️⃣ Chunk
     chunks = chunk_text(raw_text)
 
-    # 3️⃣ Free memory immediately
+    # 3️⃣ Free memory immediately (Garbage Collection)
     del raw_text
     gc.collect()
 
@@ -284,5 +285,6 @@ def essay_grading():
 # ENTRY POINT
 # -------------------------
 if __name__ == "__main__":
+    # Ensure the app binds to the PORT provided by Render
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port, debug=False)

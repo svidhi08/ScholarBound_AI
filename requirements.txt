@@ -1,15 +1,15 @@
 flask
 python-dotenv
 pypdf2
-langchain
+langchain>=0.2.0
 langchain-openai
 langchain-community
 langchain-core
 langchain-text-splitters
+langchain-huggingface
 faiss-cpu
-numpy<2
-torch==2.2.2+cpu
---extra-index-url https://download.pytorch.org/whl/cpu
-sentence-transformers==2.6.1
+numpy<2.0.0
+torch --index-url https://download.pytorch.org/whl/cpu
+sentence-transformers
 markdown
 gunicorn
